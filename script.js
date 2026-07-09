@@ -1,6 +1,6 @@
 
-const SHEET_CSV_BG = "PASTE_YOUR_PUBLISHED_CSV_LINK_FOR_РЕЙТИНГ_БГ_HERE";
-const SHEET_CSV_KM = "PASTE_YOUR_PUBLISHED_CSV_LINK_FOR_РЕЙТИНГ_КМ_HERE";
+const SHEET_CSV_BG = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQOUL8LXx-wqY6UWQkyE7XGczoefIWQF8GCyY-GGZUV9GIXXgy07nyIUf9-0Xu7yfuQhcjt4rMl_-2p/pub?gid=545391956&single=true&output=csv";
+const SHEET_CSV_KM = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQOUL8LXx-wqY6UWQkyE7XGczoefIWQF8GCyY-GGZUV9GIXXgy07nyIUf9-0Xu7yfuQhcjt4rMl_-2p/pub?gid=337341507&single=true&output=csv";
 const TARGET_STOCK = 1652145; // задайте общий необходимый сток в штуках
 
 const ACHIEVEMENTS = [
