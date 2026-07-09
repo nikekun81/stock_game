@@ -99,21 +99,6 @@ function renderAchievements(kmData) {
     div.innerHTML = `${a.icon}<span class="title">${a.title}</span>${winner ? `<span class="holder">${winner["КМ"]}</span>` : ""}`;
     container.appendChild(div);
   });
-
-  if (kmData.length) {
-    const topInn = kmData.reduce((max, km) => Number(km["ИНН"] || 0) > Number(max["ИНН"] || 0) ? km : max, kmData[0]);
-    const topPcs = kmData.reduce((max, km) => Number(km["Штукитог"] || 0) > Number(max["Штукитог"] || 0) ? km : max, kmData[0]);
-
-    const divInn = document.createElement("div");
-    divInn.className = "achievement unlocked";
-    divInn.innerHTML = `📇<span class="title">Лидер по ИНН</span><span class="holder">${topInn["КМ"]} (${topInn["ИНН"]})</span>`;
-    container.appendChild(divInn);
-
-    const divPcs = document.createElement("div");
-    divPcs.className = "achievement unlocked";
-    divPcs.innerHTML = `📦<span class="title">Лидер по штукам</span><span class="holder">${topPcs["КМ"]} (${topPcs["Штукитог"]})</span>`;
-    container.appendChild(divPcs);
-  }
 }
 
 loadData();
