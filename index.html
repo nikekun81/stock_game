@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Охота на сток 🏆</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🏆 Охота на сток</h1>
+
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="progress-percent">0%</span>
+        <span id="progress-left">Осталось: — шт.</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <h2>📊 Рейтинг бизнес-групп</h2>
+    <div id="bg-cards" class="cards"></div>
+
+    <h2>🧑‍💼 Рейтинг менеджеров (КМ)</h2>
+    <table class="km-table">
+      <thead>
+        <tr><th>#</th><th>Имя</th><th>БГ</th><th>Очки</th><th>Штук закрыто</th></tr>
+      </thead>
+      <tbody id="km-table-body"></tbody>
+    </table>
+
+    <h2>🎖️ Ачивки</h2>
+    <div id="achievements" class="achievements"></div>
+
+    <div class="footer">Обновлено: <span id="last-update">—</span></div>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
