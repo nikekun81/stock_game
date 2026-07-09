@@ -34,8 +34,12 @@ function medalClass(i) {
 
 async function loadData() {
   try {
-    const bgData = await fetchCSV(SHEET_CSV_BG);
-    const kmData = await fetchCSV(SHEET_CSV_KM);
+    const bgDataRaw = await fetchCSV(SHEET_CSV_BG);
+    const kmDataRaw = await fetchCSV(SHEET_CSV_KM);
+
+    const bgData = bgDataRaw.filter(r => r["БГ"] && r["БГ"].trim() !== "");
+    const kmData = kmDataRaw.filter(r => r["БГ"] && r["БГ"].trim() !== "" && r["КМ"] && r["КМ"].trim() !== "");
+
     renderProgress(bgData);
     renderBGCards(bgData);
     renderKMTable(kmData);
