@@ -1,17 +1,11 @@
-
 const SHEET_CSV_BG = "https://docs.google.com/spreadsheets/d/1G96K9kA3myyoFyKTfBaJQDESA9ps46Xua2cMpB_C8C4/export?format=csv&gid=545391956";
-const SHEET_CSV_KM = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQOUL8LXx-wqY6UWQkyE7XGczoefIWQF8GCyY-GGZUV9GIXXgy07nyIUf9-0Xu7yfuQhcjt4rMl_-2p/pub?gid=337341507&single=true&output=csv";
-const TARGET_STOCK = 1652145; // задайте общий необходимый сток в штуках
+const SHEET_CSV_KM = "https://docs.google.com/spreadsheets/d/1G96K9kA3myyoFyKTfBaJQDESA9ps46Xua2cMpB_C8C4/export?format=csv&gid=337341507";
+const TARGET_STOCK = 1652145;
 
-const ACHIEVEMENTS = [
-  { id: "snowball", icon: "❄️", title: "Сноуболл-экзорцист", check: (km) => km.max_daily_pcs >= 500 },
-  { id: "gonets", icon: "🏃", title: "Гонец утилизации", check: (km) => km.avg_days <= 1 },
-  { id: "detective", icon: "🔍", title: "ЛК-детектив", check: (km) => km.hard_cases_closed >= 5 },
-  { id: "dozvon", icon: "📞", title: "Мастер дозвона", check: (km) => km.no_contact_closed >= 5 },
-  { id: "killer", icon: "🎯", title: "Сток-киллер", check: (km) => km.percent >= 100 },
-  { id: "clean", icon: "✨", title: "Без пыли и шума", check: (km) => km.clean_finish >= 10 },
-  { id: "guard", icon: "🛡️", title: "Хранитель БГ", check: (km) => km.is_bg_leader },
-  { id: "antifreeze", icon: "🧊", title: "Антизависание", check: (km) => km.oldest_case_closed_days >= 14 },
+const ACHIEVEMENTS_MILESTONE = [
+  { id: "m25", icon: "🥉", title: "Первый на 25%", dateField: "Дата_25" },
+  { id: "m50", icon: "🥈", title: "Первый на 50%", dateField: "Дата_50" },
+  { id: "m100", icon: "🥇", title: "Первый на 100%", dateField: "Дата_100" },
 ];
 
 function parseCSV(text) {
@@ -86,33 +80,41 @@ function renderKMTable(kmData) {
   });
 }
 
+function findFirstMilestone(kmData, dateField) {
+  const withDates = kmData.filter(km => km[dateField]);
+  if (!withDates.length) return null;
+  return withDates.reduce((earliest, km) =>
+    new Date(km[dateField]) < new Date(earliest[dateField]) ? km : earliest
+  );
+}
+
 function renderAchievements(kmData) {
   const container = document.getElementById("achievements");
   container.innerHTML = "";
-  const totalUnlocked = {};
-  ACHIEVEMENTS.forEach(a => {
-    const unlockedByAnyone = kmData.some(km => {
-      try { return a.check(normalizeKM(km)); } catch { return false; }
-    });
+
+  ACHIEVEMENTS_MILESTONE.forEach(a => {
+    const winner = findFirstMilestone(kmData, a.dateField);
     const div = document.createElement("div");
-    div.className = "achievement" + (unlockedByAnyone ? " unlocked" : "");
-    div.innerHTML = `${a.icon}<span class="title">${a.title}</span>`;
+    div.className = "achievement" + (winner ? " unlocked" : "");
+    div.innerHTML = `${a.icon}<span class="title">${a.title}</span>${winner ? `<span class="holder">${winner["КМ"]}</span>` : ""}`;
     container.appendChild(div);
   });
-}
 
-function normalizeKM(row) {
-  return {
-    max_daily_pcs: Number(row["Макс_шт_день"] || 0),
-    avg_days: Number(row["Ср_дни"] || 999),
-    hard_cases_closed: Number(row["Сложных_закрыто"] || 0),
-    no_contact_closed: Number(row["НеВыходитНаСвязь_закрыто"] || 0),
-    percent: Number(row["Процент"] || 0),
-    clean_finish: Number(row["Чистых_закрытий"] || 0),
-    is_bg_leader: row["Лидер_БГ"] === "TRUE" || row["Лидер_БГ"] === "1",
-    oldest_case_closed_days: Number(row["Макс_дней_в_работе"] || 0),
-  };
+  if (kmData.length) {
+    const topInn = kmData.reduce((max, km) => Number(km["ИНН"] || 0) > Number(max["ИНН"] || 0) ? km : max, kmData[0]);
+    const topPcs = kmData.reduce((max, km) => Number(km["Штукитог"] || 0) > Number(max["Штукитог"] || 0) ? km : max, kmData[0]);
+
+    const divInn = document.createElement("div");
+    divInn.className = "achievement unlocked";
+    divInn.innerHTML = `📇<span class="title">Лидер по ИНН</span><span class="holder">${topInn["КМ"]} (${topInn["ИНН"]})</span>`;
+    container.appendChild(divInn);
+
+    const divPcs = document.createElement("div");
+    divPcs.className = "achievement unlocked";
+    divPcs.innerHTML = `📦<span class="title">Лидер по штукам</span><span class="holder">${topPcs["КМ"]} (${topPcs["Штукитог"]})</span>`;
+    container.appendChild(divPcs);
+  }
 }
 
 loadData();
-setInterval(loadData, 60000); // автообновление каждую минуту
+setInterval(loadData, 60000);
