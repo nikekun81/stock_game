@@ -77,20 +77,4 @@ h2 {
 .card-medal { font-size: 18px; margin-right: 8px; }
 .card-percent { font-size: 17px; color: #ff2d78; font-weight: 800; }
 
-.achievements-list { display: flex; flex-direction: column; gap: 6px; }
-.achiever-row {
-  background: rgba(255,45,120,0.06);
-  border: 1px solid rgba(255,138,184,0.15);
-  border-radius: 14px;
-  padding: 10px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  backdrop-filter: blur(10px);
-}
-.achiever-name { font-weight: 600; font-size: 13px; color: #fff; }
-.achiever-badges { display: flex; gap: 6px; font-size: 17px; }
-.badge { filter: drop-shadow(0 0 4px rgba(255,138,184,0.6)); }
-.no-achievers { text-align: center; color: #8a6070; font-size: 12px; padding: 16px; }
-
 .footer { text-align: center; font-size: 11px; color: #8a6070; margin-top: 28px; }
