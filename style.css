@@ -1,27 +1,96 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
-body { background: linear-gradient(135deg, #1e1e2f, #2a2a45); color: #fff; padding: 16px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', -apple-system, Roboto, sans-serif;
+  background: radial-gradient(circle at top, #2b0a1f, #12060d 70%);
+  color: #fff;
+  padding: 20px;
+  min-height: 100vh;
+}
 .container { max-width: 480px; margin: 0 auto; }
-h1 { text-align: center; font-size: 24px; margin-bottom: 16px; }
-h2 { font-size: 16px; margin: 20px 0 10px; color: #ffd166; }
 
-.progress-section { margin-bottom: 12px; }
-.progress-label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; }
-#progress-percent { font-size: 28px; font-weight: bold; color: #06d6a0; }
-.progress-bar-bg { background: #333; border-radius: 12px; height: 20px; overflow: hidden; }
-.progress-bar-fill { background: linear-gradient(90deg, #06d6a0, #ffd166); height: 100%; width: 0%; transition: width 1s ease; }
+.hero { text-align: center; margin-bottom: 24px; }
+.hero h1 {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #ff2d78, #ff8ab8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.5px;
+}
+.subtitle { font-size: 13px; color: #d69ab5; margin-top: 4px; }
 
-.cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
-.card { background: #2f2f4a; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
-.card.gold { border: 2px solid #ffd166; }
-.card.silver { border: 2px solid #c0c0c0; }
-.card.bronze { border: 2px solid #cd7f32; }
-.card-name { font-weight: bold; display: flex; align-items: center; }
-.card-medal { font-size: 20px; margin-right: 6px; }
-.card-percent { font-size: 18px; color: #06d6a0; font-weight: bold; }
+h2 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 24px 0 12px;
+  color: #ff8ab8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-icon { font-size: 18px; }
 
-.achievements { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.achievement { background: #2f2f4a; border-radius: 12px; padding: 10px; text-align: center; font-size: 22px; opacity: 0.3; position: relative; }
-.achievement.unlocked { opacity: 1; background: #3a3a5a; box-shadow: 0 0 8px #ffd16688; }
-.achievement span.title { display: block; font-size: 9px; margin-top: 4px; color: #ccc; }
+.progress-section {
+  background: rgba(255,45,120,0.08);
+  border: 1px solid rgba(255,138,184,0.15);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 8px;
+  backdrop-filter: blur(10px);
+}
+.progress-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+#progress-percent {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ff2d78;
+  text-shadow: 0 0 20px rgba(255,45,120,0.5);
+}
+#progress-left { font-size: 12px; color: #d69ab5; }
+.progress-bar-bg { background: rgba(255,255,255,0.08); border-radius: 12px; height: 14px; overflow: hidden; }
+.progress-bar-fill {
+  background: linear-gradient(90deg, #ff2d78, #ff8ab8);
+  height: 100%;
+  width: 0%;
+  border-radius: 12px;
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px rgba(255,45,120,0.6);
+}
 
-.footer { text-align: center; font-size: 11px; color: #888; margin-top: 24px; }
+.cards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.card {
+  background: rgba(255,45,120,0.06);
+  border: 1px solid rgba(255,138,184,0.15);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease;
+}
+.card:hover { transform: translateY(-2px); }
+.card.gold { border: 1px solid #ffd166; box-shadow: 0 0 16px rgba(255,209,102,0.3); }
+.card.silver { border: 1px solid #e0b8cc; box-shadow: 0 0 12px rgba(224,184,204,0.25); }
+.card.bronze { border: 1px solid #cd7f32; box-shadow: 0 0 12px rgba(205,127,50,0.25); }
+.card-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; color: #fff; }
+.card-medal { font-size: 18px; margin-right: 8px; }
+.card-percent { font-size: 17px; color: #ff2d78; font-weight: 800; }
+
+.achievements-list { display: flex; flex-direction: column; gap: 6px; }
+.achiever-row {
+  background: rgba(255,45,120,0.06);
+  border: 1px solid rgba(255,138,184,0.15);
+  border-radius: 14px;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+.achiever-name { font-weight: 600; font-size: 13px; color: #fff; }
+.achiever-badges { display: flex; gap: 6px; font-size: 17px; }
+.badge { filter: drop-shadow(0 0 4px rgba(255,138,184,0.6)); }
+.no-achievers { text-align: center; color: #8a6070; font-size: 12px; padding: 16px; }
+
+.footer { text-align: center; font-size: 11px; color: #8a6070; margin-top: 28px; }
