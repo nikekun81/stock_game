@@ -1,4 +1,3 @@
-
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
 body { background: linear-gradient(135deg, #1e1e2f, #2a2a45); color: #fff; padding: 16px; }
 .container { max-width: 480px; margin: 0 auto; }
@@ -11,18 +10,14 @@ h2 { font-size: 16px; margin: 20px 0 10px; color: #ffd166; }
 .progress-bar-bg { background: #333; border-radius: 12px; height: 20px; overflow: hidden; }
 .progress-bar-fill { background: linear-gradient(90deg, #06d6a0, #ffd166); height: 100%; width: 0%; transition: width 1s ease; }
 
-.cards { display: flex; flex-direction: column; gap: 10px; }
+.cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
 .card { background: #2f2f4a; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
 .card.gold { border: 2px solid #ffd166; }
 .card.silver { border: 2px solid #c0c0c0; }
 .card.bronze { border: 2px solid #cd7f32; }
-.card-name { font-weight: bold; }
+.card-name { font-weight: bold; display: flex; align-items: center; }
 .card-medal { font-size: 20px; margin-right: 6px; }
 .card-percent { font-size: 18px; color: #06d6a0; font-weight: bold; }
-
-.km-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.km-table th, .km-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #444; }
-.km-table tr:first-child td { color: #ffd166; font-weight: bold; }
 
 .achievements { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .achievement { background: #2f2f4a; border-radius: 12px; padding: 10px; text-align: center; font-size: 22px; opacity: 0.3; position: relative; }
