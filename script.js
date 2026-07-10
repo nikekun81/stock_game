@@ -8,16 +8,6 @@ function toPercent(v) {
   return n <= 1 ? n * 100 : n;
 }
 
-const ACHIEVEMENTS = [
-  { id: "killer", icon: "🎯", title: "Сток-киллер", check: (km) => toPercent(km["Процент"]) >= 100 },
-  { id: "half", icon: "⚡", title: "На полпути", check: (km) => toPercent(km["Процент"]) >= 50 },
-  { id: "starter", icon: "🚀", title: "Старт дан", check: (km) => toPercent(km["Процент"]) > 0 },
-  { id: "clean", icon: "✨", title: "Почти финиш", check: (km) => toPercent(km["Процент"]) >= 90 },
-  { id: "volume", icon: "📦", title: "Тяжеловес", check: (km) => Number(km["Закрыто_шт"] || 0) >= 50000 },
-  { id: "guard", icon: "🛡️", title: "Хранитель БГ", check: (km) => km._isBgLeader },
-  { id: "top3", icon: "🏅", title: "Топ-3 КМ", check: (km) => km._rank <= 3 },
-];
-
 function parseCSV(text) {
   const rows = [];
   let row = [], field = "", inQuotes = false;
@@ -83,10 +73,7 @@ async function loadData() {
 
     renderProgress(bgData);
     renderRankedCards(bgData, "bg-cards", "БГ");
-    const sortedKM = renderRankedCards(kmData, "km-cards", "КМ");
-
-    prepareAchievementContext(sortedKM);
-    renderPersonalAchievements(sortedKM);
+    renderRankedCards(kmData, "km-cards", "КМ");
 
     document.getElementById("last-update").textContent = new Date().toLocaleTimeString("ru-RU");
   } catch (e) {
@@ -108,7 +95,6 @@ function renderRankedCards(data, containerId, nameField) {
   container.innerHTML = "";
 
   sorted.forEach((row, i) => {
-    row._rank = i + 1;
     const pct = Math.round(toPercent(row["Процент"]));
     const div = document.createElement("div");
     div.className = "card " + medalClass(i);
@@ -120,49 +106,6 @@ function renderRankedCards(data, containerId, nameField) {
   });
 
   return sorted;
-}
-
-function prepareAchievementContext(sortedKM) {
-  const bgGroups = {};
-  sortedKM.forEach(km => {
-    const bg = km["БГ"];
-    if (!bgGroups[bg]) bgGroups[bg] = [];
-    bgGroups[bg].push(km);
-  });
-
-  const bgLeaderNames = new Set();
-  Object.values(bgGroups).forEach(group => {
-    const leader = group.reduce((a, b) => toPercent(b["Процент"]) > toPercent(a["Процент"]) ? b : a);
-    bgLeaderNames.add(leader["КМ"]);
-  });
-
-  sortedKM.forEach(km => {
-    km._isBgLeader = bgLeaderNames.has(km["КМ"]);
-  });
-}
-
-function renderPersonalAchievements(kmData) {
-  const container = document.getElementById("achievements");
-  container.innerHTML = "";
-
-  kmData.forEach(km => {
-    const earned = ACHIEVEMENTS.filter(a => a.check(km));
-    if (earned.length === 0) return;
-
-    const div = document.createElement("div");
-    div.className = "achiever-row";
-    div.innerHTML = `
-      <div class="achiever-name">${km["КМ"]}</div>
-      <div class="achiever-badges">
-        ${earned.map(a => `<span class="badge" title="${a.title}">${a.icon}</span>`).join("")}
-      </div>
-    `;
-    container.appendChild(div);
-  });
-
-  if (container.innerHTML === "") {
-    container.innerHTML = `<div class="no-achievers">Пока никто не получил ачивок</div>`;
-  }
 }
 
 loadData();
