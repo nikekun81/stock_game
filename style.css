@@ -20,6 +20,20 @@ body {
 }
 .subtitle { font-size: 13px; color: #d69ab5; margin-top: 4px; }
 
+.rules-btn {
+  margin-top: 12px;
+  background: rgba(255,45,120,0.12);
+  border: 1px solid rgba(255,138,184,0.3);
+  color: #ff8ab8;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.rules-btn:hover { background: rgba(255,45,120,0.22); }
+
 h2 {
   font-size: 15px;
   font-weight: 700;
@@ -78,3 +92,60 @@ h2 {
 .card-percent { font-size: 17px; color: #ff2d78; font-weight: 800; }
 
 .footer { text-align: center; font-size: 11px; color: #8a6070; margin-top: 28px; }
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: linear-gradient(160deg, #2b0a1f, #1a0712);
+  border: 1px solid rgba(255,138,184,0.2);
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 380px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.modal h3 {
+  font-size: 18px;
+  color: #ff8ab8;
+  margin-bottom: 16px;
+}
+.rules-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.rules-list li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #fff;
+  padding-left: 18px;
+  position: relative;
+}
+.rules-list li::before {
+  content: "•";
+  color: #ff2d78;
+  position: absolute;
+  left: 0;
+  font-size: 16px;
+}
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+}
