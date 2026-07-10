@@ -110,3 +110,21 @@ function renderRankedCards(data, containerId, nameField) {
 
 loadData();
 setInterval(loadData, 60000);
+
+const rulesBtn = document.getElementById("rules-btn");
+const modalOverlay = document.getElementById("modal-overlay");
+const modalClose = document.getElementById("modal-close");
+
+rulesBtn.addEventListener("click", () => {
+  modalOverlay.classList.add("active");
+});
+
+modalClose.addEventListener("click", () => {
+  modalOverlay.classList.remove("active");
+});
+
+modalOverlay.addEventListener("click", (e) => {
+  if (e.target === modalOverlay) {
+    modalOverlay.classList.remove("active");
+  }
+});
