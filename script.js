@@ -22,11 +22,45 @@ const ACHIEVEMENTS = [
 ];
 
 function parseCSV(text) {
-  const lines = text.trim().split("\n").map(l => l.split(","));
-  const headers = lines[0].map(h => h.trim());
-  return lines.slice(1).map(row => {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  const chars = text.trim();
+
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i];
+    if (inQuotes) {
+      if (c === '"' && chars[i + 1] === '"') { field += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"') { inQuotes = true; }
+      else if (c === ",") { row.push(field); field = ""; }
+      else if (c === "\n" || c === "\r") {
+        if (c === "\r" && chars[i + 1] === "\n") { i++; }
+        row.push(field);
+        rows.push(row);
+        row = [];
+        field = "";
+      } else {
+        field += c;
+      }
+    }
+  }
+  if (field !== "" || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+
+  const headers = rows[0].map(h => h.trim());
+  return rows.slice(1).filter(r => r.length > 1 || r[0] !== "").map(r => {
     const obj = {};
-    headers.forEach((h, i) => obj[h] = (row[i] || "").trim());
+    headers.forEach((h, i) => {
+      let val = (r[i] || "").trim();
+      if (/^-?\d{1,3}(,\d{3})+$/.test(val)) {
+        val = val.replace(/,/g, "");
+      }
+      obj[h] = val;
+    });
     return obj;
   });
 }
