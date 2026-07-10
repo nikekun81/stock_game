@@ -14,11 +14,8 @@ const ACHIEVEMENTS = [
   { id: "starter", icon: "🚀", title: "Старт дан", check: (km) => toPercent(km["Процент"]) > 0 },
   { id: "clean", icon: "✨", title: "Почти финиш", check: (km) => toPercent(km["Процент"]) >= 90 },
   { id: "volume", icon: "📦", title: "Тяжеловес", check: (km) => Number(km["Закрыто_шт"] || 0) >= 50000 },
-  { id: "workhorse", icon: "🐎", title: "Рабочая лошадка", check: (km) => Number(km["Всего_шт"] || 0) >= 100000 },
-  { id: "lightload", icon: "🪶", title: "Лёгкий сток", check: (km) => (Number(km["Всего_шт"] || 0) - Number(km["Закрыто_шт"] || 0)) <= 5000 },
   { id: "guard", icon: "🛡️", title: "Хранитель БГ", check: (km) => km._isBgLeader },
   { id: "top3", icon: "🏅", title: "Топ-3 КМ", check: (km) => km._rank <= 3 },
-  { id: "underdog", icon: "🐺", title: "Тёмная лошадка", check: (km) => km._rank > 3 && toPercent(km["Процент"]) >= 70 },
 ];
 
 function parseCSV(text) {
@@ -85,11 +82,11 @@ async function loadData() {
     const kmData = await fetchCSV(SHEET_CSV_KM);
 
     renderProgress(bgData);
-    const sortedBG = renderRankedCards(bgData, "bg-cards", "БГ");
+    renderRankedCards(bgData, "bg-cards", "БГ");
     const sortedKM = renderRankedCards(kmData, "km-cards", "КМ");
 
     prepareAchievementContext(sortedKM);
-    renderAchievements(sortedKM);
+    renderPersonalAchievements(sortedKM);
 
     document.getElementById("last-update").textContent = new Date().toLocaleTimeString("ru-RU");
   } catch (e) {
@@ -144,23 +141,28 @@ function prepareAchievementContext(sortedKM) {
   });
 }
 
-function renderAchievements(kmData) {
+function renderPersonalAchievements(kmData) {
   const container = document.getElementById("achievements");
   container.innerHTML = "";
-  const unlockedIds = new Set();
 
   kmData.forEach(km => {
-    ACHIEVEMENTS.forEach(a => {
-      if (a.check(km)) unlockedIds.add(a.id);
-    });
-  });
+    const earned = ACHIEVEMENTS.filter(a => a.check(km));
+    if (earned.length === 0) return;
 
-  ACHIEVEMENTS.forEach(a => {
     const div = document.createElement("div");
-    div.className = "achievement " + (unlockedIds.has(a.id) ? "unlocked" : "");
-    div.innerHTML = `${a.icon}<span class="title">${a.title}</span>`;
+    div.className = "achiever-row";
+    div.innerHTML = `
+      <div class="achiever-name">${km["КМ"]}</div>
+      <div class="achiever-badges">
+        ${earned.map(a => `<span class="badge" title="${a.title}">${a.icon}</span>`).join("")}
+      </div>
+    `;
     container.appendChild(div);
   });
+
+  if (container.innerHTML === "") {
+    container.innerHTML = `<div class="no-achievers">Пока никто не получил ачивок</div>`;
+  }
 }
 
 loadData();
