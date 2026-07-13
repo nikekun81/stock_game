@@ -3,8 +3,11 @@ const SHEET_CSV_KM = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQOUL8LXx-
 const TARGET_STOCK = 1652145;
 
 function toPercent(v) {
-  const n = Number(String(v).replace(",", ".").replace("%", ""));
+  const str = String(v).trim();
+  const hasPercentSign = str.includes("%");
+  const n = Number(str.replace(",", ".").replace("%", ""));
   if (isNaN(n)) return 0;
+  if (hasPercentSign) return n;
   return n <= 1 ? n * 100 : n;
 }
 
