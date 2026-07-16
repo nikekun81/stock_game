@@ -69,14 +69,78 @@ function medalIcon(i) {
   return i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "▫️";
 }
 
+// --- Ачивки ---
+
+function getAchievementStore(key) {
+  const raw = localStorage.getItem(key);
+  return raw ? JSON.parse(raw) : {};
+}
+
+function saveAchievementStore(key, store) {
+  localStorage.setItem(key, JSON.stringify(store));
+}
+
+// groupField: название столбца, определяющего группу (для КМ — БГ; для БГ — null, группа = сама сущность)
+function trackAchievements(sorted, nameField, groupField, storeKey) {
+  const store = getAchievementStore(storeKey);
+  const now = Date.now();
+
+  sorted.forEach(row => {
+    const name = row[nameField];
+    const pct = Math.round(toPercent(row["Процент"]));
+    if (pct >= 100 && !store[name]) {
+      store[name] = { time: now, group: groupField ? row[groupField] : name };
+    }
+  });
+
+  saveAchievementStore(storeKey, store);
+  return store;
+}
+
+function getFirstInGroup(store, group) {
+  const entries = Object.entries(store).filter(([, v]) => v.group === group);
+  if (entries.length === 0) return null;
+  return entries.reduce((a, b) => (a[1].time < b[1].time ? a : b))[0];
+}
+
+function getGlobalTop3(bgStore, kmStore) {
+  const all = [
+    ...Object.entries(bgStore).map(([name, v]) => ({ name, time: v.time })),
+    ...Object.entries(kmStore).map(([name, v]) => ({ name, time: v.time }))
+  ];
+  return all.sort((a, b) => a.time - b.time).slice(0, 3).map(e => e.name);
+}
+
+function achievementIcons(name, group, store, globalTop3) {
+  let icons = "";
+  if (!(name in store)) return icons;
+
+  const firstInGroup = getFirstInGroup(store, group);
+  if (name === firstInGroup) icons += "👑";
+
+  const rank = globalTop3.indexOf(name);
+  if (rank === 0) icons += " 💎💎💎";
+  else if (rank === 1) icons += " 💎💎";
+  else if (rank === 2) icons += " 💎";
+
+  return icons;
+}
+
+// --- Рендер ---
+
 async function loadData() {
   try {
     const bgData = await fetchCSV(SHEET_CSV_BG);
     const kmData = await fetchCSV(SHEET_CSV_KM);
 
     renderProgress(bgData);
-    renderRankedCards(bgData, "bg-cards", "БГ");
-    renderRankedCards(kmData, "km-cards", "КМ");
+
+    const bgStorePreview = trackAchievements(bgData, "БГ", null, "achievements_BG");
+    const kmStorePreview = trackAchievements(kmData, "КМ", "БГ", "achievements_KM");
+    const globalTop3 = getGlobalTop3(bgStorePreview, kmStorePreview);
+
+    renderRankedCards(bgData, "bg-cards", "БГ", null, "achievements_BG", globalTop3);
+    renderRankedCards(kmData, "km-cards", "КМ", "БГ", "achievements_KM", globalTop3);
 
     document.getElementById("last-update").textContent = new Date().toLocaleTimeString("ru-RU");
   } catch (e) {
@@ -92,17 +156,20 @@ function renderProgress(bgData) {
   document.getElementById("progress-left").textContent = "Осталось: " + Math.max(0, TARGET_STOCK - totalClosed) + " шт.";
 }
 
-function renderRankedCards(data, containerId, nameField) {
+function renderRankedCards(data, containerId, nameField, groupField, storeKey, globalTop3) {
   const sorted = [...data].sort((a, b) => toPercent(b["Процент"]) - toPercent(a["Процент"]));
+  const store = trackAchievements(sorted, nameField, groupField, storeKey);
   const container = document.getElementById(containerId);
   container.innerHTML = "";
 
   sorted.forEach((row, i) => {
     const pct = Math.round(toPercent(row["Процент"]));
+    const group = groupField ? row[groupField] : row[nameField];
+    const achievement = achievementIcons(row[nameField], group, store, globalTop3);
     const div = document.createElement("div");
     div.className = "card " + medalClass(i);
     div.innerHTML = `
-      <div class="card-name"><span class="card-medal">${medalIcon(i)}</span>${row[nameField]}</div>
+      <div class="card-name"><span class="card-medal">${medalIcon(i)}</span>${row[nameField]} <span class="card-achievement">${achievement}</span></div>
       <div class="card-percent">${pct}%</div>
     `;
     container.appendChild(div);
