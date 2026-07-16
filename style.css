@@ -87,8 +87,9 @@ h2 {
 .card.gold { border: 1px solid #ffd166; box-shadow: 0 0 16px rgba(255,209,102,0.3); }
 .card.silver { border: 1px solid #e0b8cc; box-shadow: 0 0 12px rgba(224,184,204,0.25); }
 .card.bronze { border: 1px solid #cd7f32; box-shadow: 0 0 12px rgba(205,127,50,0.25); }
-.card-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; color: #fff; }
+.card-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; color: #fff; }
 .card-medal { font-size: 18px; margin-right: 8px; }
+.card-achievement { font-size: 14px; }
 .card-percent { font-size: 17px; color: #ff2d78; font-weight: 800; }
 
 .footer { text-align: center; font-size: 11px; color: #8a6070; margin-top: 28px; }
