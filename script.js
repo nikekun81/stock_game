@@ -146,17 +146,19 @@ function countSellers(row, field) {
   return raw.split(/[,;\s]+/).filter(v => v.trim() !== "").length;
 }
 
-function getTopSellers(data, field) {
-  let top = null;
-  let maxVal = -Infinity;
+// Возвращает объект: группа (БГ) -> имя лучшего по числовому значению внутри этой группы
+function getTopByFieldPerGroup(data, groupField, nameField, valueFn) {
+  const bestByGroup = {};
   data.forEach(row => {
-    const val = countSellers(row, field);
-    if (val > maxVal) {
-      maxVal = val;
-      top = row;
+    const group = row[groupField];
+    const val = valueFn(row);
+    if (!(group in bestByGroup) || val > bestByGroup[group].val) {
+      bestByGroup[group] = { name: row[nameField], val };
     }
   });
-  return top;
+  const result = {};
+  Object.entries(bestByGroup).forEach(([group, v]) => { result[group] = v.name; });
+  return result;
 }
 
 // --- Рендер ---
@@ -172,8 +174,8 @@ async function loadData() {
     const kmStorePreview = trackAchievements(kmData, "КМ", "БГ", "achievements_KM");
     const globalTop3 = getGlobalTop3(bgStorePreview, kmStorePreview);
 
-    renderRankedCards(bgData, "bg-cards", "БГ", null, "achievements_BG", globalTop3, "Закрыто_шт", null);
-    renderRankedCards(kmData, "km-cards", "КМ", "БГ", "achievements_KM", globalTop3, "Закрыто_шт", "ИНН");
+    renderBgCards(bgData, globalTop3);
+    renderKmCards(kmData, globalTop3);
 
     document.getElementById("last-update").textContent = new Date().toLocaleTimeString("ru-RU");
   } catch (e) {
@@ -189,33 +191,54 @@ function renderProgress(bgData) {
   document.getElementById("progress-left").textContent = "Осталось: " + Math.max(0, TARGET_STOCK - totalClosed) + " шт.";
 }
 
-function renderRankedCards(data, containerId, nameField, groupField, storeKey, globalTop3, qtyField, sellersField) {
-  const sorted = [...data].sort((a, b) => toPercent(b["Процент"]) - toPercent(a["Процент"]));
-  const store = trackAchievements(sorted, nameField, groupField, storeKey);
-  const container = document.getElementById(containerId);
+function renderBgCards(bgData, globalTop3) {
+  const sorted = [...bgData].sort((a, b) => toPercent(b["Процент"]) - toPercent(a["Процент"]));
+  const store = trackAchievements(sorted, "БГ", null, "achievements_BG");
+  const container = document.getElementById("bg-cards");
   container.innerHTML = "";
 
-  const topQty = qtyField ? getTopByField(data, qtyField) : null;
-  const topSellers = sellersField ? getTopSellers(data, sellersField) : null;
+  const topQty = getTopByField(bgData, "Закрыто_шт");
 
   sorted.forEach((row, i) => {
     const pct = Math.round(toPercent(row["Процент"]));
-    const group = groupField ? row[groupField] : row[nameField];
-    let achievement = achievementIcons(row[nameField], group, store, globalTop3);
-
-    if (topQty && row[nameField] === topQty[nameField]) achievement += " 🏋️";
-    if (topSellers && row[nameField] === topSellers[nameField]) achievement += " 🐙";
+    let achievement = achievementIcons(row["БГ"], row["БГ"], store, globalTop3);
+    if (topQty && row["БГ"] === topQty["БГ"]) achievement += " 🏋️";
 
     const div = document.createElement("div");
     div.className = "card " + medalClass(i);
     div.innerHTML = `
-      <div class="card-name"><span class="card-medal">${medalIcon(i)}</span>${row[nameField]} <span class="card-achievement">${achievement}</span></div>
+      <div class="card-name"><span class="card-medal">${medalIcon(i)}</span>${row["БГ"]} <span class="card-achievement">${achievement}</span></div>
       <div class="card-percent">${pct}%</div>
     `;
     container.appendChild(div);
   });
+}
 
-  return sorted;
+function renderKmCards(kmData, globalTop3) {
+  const sorted = [...kmData].sort((a, b) => toPercent(b["Процент"]) - toPercent(a["Процент"]));
+  const store = trackAchievements(sorted, "КМ", "БГ", "achievements_KM");
+  const container = document.getElementById("km-cards");
+  container.innerHTML = "";
+
+  const topQtyPerBg = getTopByFieldPerGroup(kmData, "БГ", "КМ", row => Number(String(row["Закрыто_шт"]).replace(/,/g, "")) || 0);
+  const topSellersPerBg = getTopByFieldPerGroup(kmData, "БГ", "КМ", row => countSellers(row, "ИНН"));
+
+  sorted.forEach((row, i) => {
+    const pct = Math.round(toPercent(row["Процент"]));
+    const group = row["БГ"];
+    let achievement = achievementIcons(row["КМ"], group, store, globalTop3);
+
+    if (topQtyPerBg[group] === row["КМ"]) achievement += " 🏋️";
+    if (topSellersPerBg[group] === row["КМ"]) achievement += " 🐙";
+
+    const div = document.createElement("div");
+    div.className = "card " + medalClass(i);
+    div.innerHTML = `
+      <div class="card-name"><span class="card-medal">${medalIcon(i)}</span>${row["КМ"]} <span class="card-achievement">${achievement}</span></div>
+      <div class="card-percent">${pct}%</div>
+    `;
+    container.appendChild(div);
+  });
 }
 
 loadData();
