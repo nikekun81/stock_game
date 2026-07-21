@@ -161,6 +161,20 @@ function getTopByFieldPerGroup(data, groupField, nameField, valueFn) {
   return result;
 }
 
+// --- Ранжирование: % → продавцы → штуки ---
+
+function compareByRules(a, b) {
+  const pctDiff = toPercent(b["Процент"]) - toPercent(a["Процент"]);
+  if (pctDiff !== 0) return pctDiff;
+
+  const sellersDiff = countSellers(b, "ИНН") - countSellers(a, "ИНН");
+  if (sellersDiff !== 0) return sellersDiff;
+
+  const qtyA = Number(String(a["Закрыто_шт"]).replace(/,/g, "")) || 0;
+  const qtyB = Number(String(b["Закрыто_шт"]).replace(/,/g, "")) || 0;
+  return qtyB - qtyA;
+}
+
 // --- Рендер ---
 
 async function loadData() {
@@ -192,7 +206,7 @@ function renderProgress(bgData) {
 }
 
 function renderBgCards(bgData, globalTop3) {
-  const sorted = [...bgData].sort((a, b) => toPercent(b["Процент"]) - toPercent(a["Процент"]));
+  const sorted = [...bgData].sort(compareByRules);
   const store = trackAchievements(sorted, "БГ", null, "achievements_BG");
   const container = document.getElementById("bg-cards");
   container.innerHTML = "";
@@ -215,7 +229,7 @@ function renderBgCards(bgData, globalTop3) {
 }
 
 function renderKmCards(kmData, globalTop3) {
-  const sorted = [...kmData].sort((a, b) => toPercent(b["Процент"]) - toPercent(a["Процент"]));
+  const sorted = [...kmData].sort(compareByRules);
   const store = trackAchievements(sorted, "КМ", "БГ", "achievements_KM");
   const container = document.getElementById("km-cards");
   container.innerHTML = "";
