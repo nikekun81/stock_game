@@ -69,7 +69,7 @@ function medalIcon(i) {
   return i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "▫️";
 }
 
-// --- Ачивки ---
+// --- Ачивки (логика КМ полностью без изменений) ---
 
 function getAchievementStore(key) {
   const raw = localStorage.getItem(key);
@@ -102,6 +102,7 @@ function getFirstInGroup(store, group) {
   return entries.reduce((a, b) => (a[1].time < b[1].time ? a : b))[0];
 }
 
+// Используется только для КМ (логика не менялась)
 function getGlobalTop3(bgStore, kmStore) {
   const all = [
     ...Object.entries(bgStore).map(([name, v]) => ({ name, time: v.time })),
@@ -110,6 +111,15 @@ function getGlobalTop3(bgStore, kmStore) {
   return all.sort((a, b) => a.time - b.time).slice(0, 3).map(e => e.name);
 }
 
+// Используется только для БГ: отдельный топ-3 внутри собственного store, без смешивания с КМ
+function getBgTop3(bgStore) {
+  return Object.entries(bgStore)
+    .sort((a, b) => a[1].time - b[1].time)
+    .slice(0, 3)
+    .map(([name]) => name);
+}
+
+// Иконки для КМ (логика не менялась: корона + глобальные бриллианты)
 function achievementIcons(name, group, store, globalTop3) {
   let icons = "";
   if (!(name in store)) return icons;
@@ -125,6 +135,16 @@ function achievementIcons(name, group, store, globalTop3) {
   return icons;
 }
 
+// Иконки для БГ: только бриллианты по собственному топ-3, короны нет
+function achievementIconsBg(name, store, bgTop3) {
+  if (!(name in store)) return "";
+  const rank = bgTop3.indexOf(name);
+  if (rank === 0) return " 💎💎💎";
+  if (rank === 1) return " 💎💎";
+  if (rank === 2) return " 💎";
+  return "";
+}
+
 function getTopByField(data, field) {
   let top = null;
   let maxVal = -Infinity;
@@ -138,7 +158,6 @@ function getTopByField(data, field) {
   return top;
 }
 
-// Столбец "ИНН" на листе Рейтинг_КМ хранит готовое количество продавцов на менеджера.
 function countSellers(row, field) {
   const raw = String(row[field] || "").trim();
   if (raw === "") return 0;
@@ -146,7 +165,6 @@ function countSellers(row, field) {
   return raw.split(/[,;\s]+/).filter(v => v.trim() !== "").length;
 }
 
-// Возвращает объект: группа (БГ) -> имя лучшего по числовому значению внутри этой группы
 function getTopByFieldPerGroup(data, groupField, nameField, valueFn) {
   const bestByGroup = {};
   data.forEach(row => {
@@ -161,7 +179,7 @@ function getTopByFieldPerGroup(data, groupField, nameField, valueFn) {
   return result;
 }
 
-// --- Ранжирование: % → продавцы → штуки ---
+// --- Ранжирование: % -> продавцы -> штуки (не менялось) ---
 
 function compareByRules(a, b) {
   const pctDiff = toPercent(b["Процент"]) - toPercent(a["Процент"]);
@@ -186,9 +204,13 @@ async function loadData() {
 
     const bgStorePreview = trackAchievements(bgData, "БГ", null, "achievements_BG");
     const kmStorePreview = trackAchievements(kmData, "КМ", "БГ", "achievements_KM");
-    const globalTop3 = getGlobalTop3(bgStorePreview, kmStorePreview);
 
-    renderBgCards(bgData, globalTop3);
+    // КМ: как раньше, глобальный топ-3 (БГ+КМ вместе) — используется только для КМ
+    const globalTop3 = getGlobalTop3(bgStorePreview, kmStorePreview);
+    // БГ: новый отдельный топ-3 только среди БГ
+    const bgTop3 = getBgTop3(bgStorePreview);
+
+    renderBgCards(bgData, bgTop3);
     renderKmCards(kmData, globalTop3);
 
     document.getElementById("last-update").textContent = new Date().toLocaleTimeString("ru-RU");
@@ -205,7 +227,8 @@ function renderProgress(bgData) {
   document.getElementById("progress-left").textContent = "Осталось: " + Math.max(0, TARGET_STOCK - totalClosed) + " шт.";
 }
 
-function renderBgCards(bgData, globalTop3) {
+// Изменено: БГ теперь получают ачивки через achievementIconsBg (без короны, свой топ-3)
+function renderBgCards(bgData, bgTop3) {
   const sorted = [...bgData].sort(compareByRules);
   const store = trackAchievements(sorted, "БГ", null, "achievements_BG");
   const container = document.getElementById("bg-cards");
@@ -215,7 +238,7 @@ function renderBgCards(bgData, globalTop3) {
 
   sorted.forEach((row, i) => {
     const pct = Math.round(toPercent(row["Процент"]));
-    let achievement = achievementIcons(row["БГ"], row["БГ"], store, globalTop3);
+    let achievement = achievementIconsBg(row["БГ"], store, bgTop3);
     if (topQty && row["БГ"] === topQty["БГ"]) achievement += " 🏋️";
 
     const div = document.createElement("div");
@@ -228,6 +251,7 @@ function renderBgCards(bgData, globalTop3) {
   });
 }
 
+// КМ: без изменений
 function renderKmCards(kmData, globalTop3) {
   const sorted = [...kmData].sort(compareByRules);
   const store = trackAchievements(sorted, "КМ", "БГ", "achievements_KM");
